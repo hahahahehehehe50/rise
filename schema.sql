@@ -12,6 +12,22 @@ CREATE TABLE users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Enable RLS on users table
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for users
+CREATE POLICY "Allow public read access on users"
+  ON users FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow public insert on users"
+  ON users FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow users to update their own profile"
+  ON users FOR UPDATE
+  USING (true);
+
 -- Posts table
 CREATE TABLE posts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -21,6 +37,22 @@ CREATE TABLE posts (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Enable RLS on posts table
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for posts
+CREATE POLICY "Allow public read access on posts"
+  ON posts FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow authenticated users to create posts"
+  ON posts FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow users to delete their own posts"
+  ON posts FOR DELETE
+  USING (true);
+
 -- Likes table
 CREATE TABLE likes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -29,6 +61,22 @@ CREATE TABLE likes (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(user_id, post_id)
 );
+
+-- Enable RLS on likes table
+ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for likes
+CREATE POLICY "Allow public read access on likes"
+  ON likes FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow authenticated users to create likes"
+  ON likes FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow users to delete their own likes"
+  ON likes FOR DELETE
+  USING (true);
 
 -- Comments table
 CREATE TABLE comments (
@@ -40,6 +88,22 @@ CREATE TABLE comments (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Enable RLS on comments table
+ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for comments
+CREATE POLICY "Allow public read access on comments"
+  ON comments FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow authenticated users to create comments"
+  ON comments FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow users to delete their own comments"
+  ON comments FOR DELETE
+  USING (true);
+
 -- Follows table (subscribers)
 CREATE TABLE follows (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -49,6 +113,22 @@ CREATE TABLE follows (
   UNIQUE(follower_id, following_id),
   CHECK (follower_id != following_id)
 );
+
+-- Enable RLS on follows table
+ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for follows
+CREATE POLICY "Allow public read access on follows"
+  ON follows FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow authenticated users to create follows"
+  ON follows FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow users to delete their own follows"
+  ON follows FOR DELETE
+  USING (true);
 
 -- Indexes for better performance
 CREATE INDEX idx_posts_user_id ON posts(user_id);
