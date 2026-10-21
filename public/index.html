@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Rise - Text Social Network</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: #1a1a1a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .nav {
+      background: white;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .nav button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      background: #1a1a1a;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .nav button:hover {
+      background: #333;
+    }
+
+    .nav button.active {
+      background: #4CAF50;
+    }
+
+    .auth-container {
+      background: white;
+      padding: 30px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .auth-container h2 {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #45a049;
+    }
+
+    .btn-secondary {
+      background: #666;
+    }
+
+    .btn-secondary:hover {
+      background: #555;
+    }
+
+    .btn-danger {
+      background: #f44336;
+    }
+
+    .btn-danger:hover {
+      background: #da190b;
+    }
+
+    .btn-small {
+      width: auto;
+      padding: 5px 10px;
+      font-size: 12px;
+    }
+
+    .post {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .post-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      background: #ddd;
+      border-radius: 50%;
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .post-info {
+      flex: 1;
+    }
+
+    .post-username {
+      font-weight: bold;
+      color: #1a1a1a;
+    }
+
+    .post-time {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .post-content {
+      margin-bottom: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+    }
+
+    .post-actions button {
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .post-actions button:hover {
+      background: #f5f5f5;
+    }
+
+    .post-actions button.liked {
+      background: #ffebee;
+      border-color: #f44336;
+      color: #f44336;
+    }
+
+    .comments-section {
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+    }
+
+    .comment {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+
+    .comment-avatar {
+      width: 30px;
+      height: 30px;
+      background: #ddd;
+      border-radius: 50%;
+      margin-right: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .comment-username {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .comment-content {
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .error {
+      color: #f44336;
+      padding: 10px;
+      background: #ffebee;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .success {
+      color: #4CAF50;
+      padding: 10px;
+      background: #e8f5e9;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .user-profile {
+      background: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      background: #ddd;
+      border-radius: 50%;
+      margin-right: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #666;
+    }
+
+    .profile-info h2 {
+      margin-bottom: 5px;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .profile-stat {
+      text-align: center;
+    }
+
+    .profile-stat-value {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .profile-stat-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .toggle-auth {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .toggle-auth a {
+      color: #4CAF50;
+      text-decoration: none;
+    }
+
+    .toggle-auth a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Rise</h1>
+  </div>
+
+  <div class="container">
+    <!-- Auth Section -->
+    <div id="authSection" class="auth-container">
+      <div id="loginForm">
+        <h2>Login</h2>
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password">
+        </div>
+        <button class="btn" onclick="login()">Login</button>
+        <div class="toggle-auth">
+          <a href="#" onclick="showRegister()">Don't have an account? Register</a>
+        </div>
+      </div>
+
+      <div id="registerForm" class="hidden">
+        <h2>Register</h2>
+        <div class="form-group">
+          <label>Username:</label>
+          <input type="text" id="registerUsername" placeholder="Choose a username">
+        </div>
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" id="registerEmail" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" id="registerPassword" placeholder="Choose a password">
+        </div>
+        <button class="btn" onclick="register()">Register</button>
+        <div class="toggle-auth">
+          <a href="#" onclick="showLogin()">Already have an account? Login</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="appSection" class="hidden">
+      <div class="nav">
+        <button id="feedBtn" class="active" onclick="showFeed()">Feed</button>
+        <button id="profileBtn" onclick="showProfile()">Profile</button>
+        <button id="logoutBtn" onclick="logout()">Logout</button>
+      </div>
+
+      <!-- Create Post -->
+      <div id="createPost" class="post">
+        <div class="form-group">
+          <textarea id="newPostContent" placeholder="What's on your mind?"></textarea>
+        </div>
+        <button class="btn" onclick="createPost()">Post</button>
+      </div>
+
+      <!-- Feed -->
+      <div id="feedSection">
+        <div id="feedPosts"></div>
+      </div>
+
+      <!-- Profile Section -->
+      <div id="profileSection" class="hidden">
+        <div id="profileContent"></div>
+        <h3>Your Posts</h3>
+        <div id="profilePosts"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var API_URL = 'http://localhost:3000/api';
+    var currentUser = null;
+    var currentView = 'feed';
+
+    // Initialize
+    window.onload = function() {
+      var savedUser = localStorage.getItem('rise_user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showApp();
+      }
+    };
+
+    // Auth functions
+    function showRegister() {
+      document.getElementById('loginForm').className = 'hidden';
+      document.getElementById('registerForm').className = '';
+    }
+
+    function showLogin() {
+      document.getElementById('registerForm').className = 'hidden';
+      document.getElementById('loginForm').className = '';
+    }
+
+    function login() {
+      var email = document.getElementById('loginEmail').value;
+      var password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', API_URL + '/auth/login', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var response = JSON.parse(xhr.responseText);
+          currentUser = response.user;
+          localStorage.setItem('rise_user', JSON.stringify(currentUser));
+          showApp();
+        } else {
+          var response = JSON.parse(xhr.responseText);
+          alert(response.error || 'Login failed');
+        }
+      };
+      xhr.send(JSON.stringify({ email: email, password: password }));
+    }
+
+    function register() {
+      var username = document.getElementById('registerUsername').value;
+      var email = document.getElementById('registerEmail').value;
+      var password = document.getElementById('registerPassword').value;
+
+      if (!username || !email || !password) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', API_URL + '/auth/register', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var response = JSON.parse(xhr.responseText);
+          currentUser = response.user;
+          localStorage.setItem('rise_user', JSON.stringify(currentUser));
+          showApp();
+        } else {
+          var response = JSON.parse(xhr.responseText);
+          alert(response.error || 'Registration failed');
+        }
+      };
+      xhr.send(JSON.stringify({ username: username, email: email, password: password }));
+    }
+
+    function logout() {
+      currentUser = null;
+      localStorage.removeItem('rise_user');
+      document.getElementById('appSection').className = 'hidden';
+      document.getElementById('authSection').className = 'auth-container';
+      document.getElementById('loginEmail').value = '';
+      document.getElementById('loginPassword').value = '';
+    }
+
+    function showApp() {
+      document.getElementById('authSection').className = 'hidden';
+      document.getElementById('appSection').className = '';
+      showFeed();
+    }
+
+    // Navigation
+    function showFeed() {
+      currentView = 'feed';
+      document.getElementById('feedBtn').className = 'active';
+      document.getElementById('profileBtn').className = '';
+      document.getElementById('feedSection').className = '';
+      document.getElementById('profileSection').className = 'hidden';
+      document.getElementById('createPost').className = 'post';
+      loadFeed();
+    }
+
+    function showProfile() {
+      currentView = 'profile';
+      document.getElementById('feedBtn').className = '';
+      document.getElementById('profileBtn').className = 'active';
+      document.getElementById('feedSection').className = 'hidden';
+      document.getElementById('profileSection').className = '';
+      document.getElementById('createPost').className = 'hidden';
+      loadProfile();
+    }
+
+    // Post functions
+    function loadFeed() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', API_URL + '/posts', true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var posts = JSON.parse(xhr.responseText);
+          renderPosts(posts, 'feedPosts');
+        }
+      };
+      xhr.send();
+    }
+
+    function createPost() {
+      var content = document.getElementById('newPostContent').value;
+      if (!content.trim()) {
+        alert('Please enter some content');
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', API_URL + '/posts', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          document.getElementById('newPostContent').value = '';
+          if (currentView === 'feed') {
+            loadFeed();
+          } else {
+            loadProfile();
+          }
+        }
+      };
+      xhr.send(JSON.stringify({ user_id: currentUser.id, content: content }));
+    }
+
+    function deletePost(postId) {
+      if (!confirm('Are you sure you want to delete this post?')) {
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('DELETE', API_URL + '/posts/' + postId, true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          if (currentView === 'feed') {
+            loadFeed();
+          } else {
+            loadProfile();
+          }
+        }
+      };
+      xhr.send();
+    }
+
+    function renderPosts(posts, containerId) {
+      var container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      if (!posts || posts.length === 0) {
+        container.innerHTML = '<div class="loading">No posts yet</div>';
+        return;
+      }
+
+      for (var i = 0; i < posts.length; i++) {
+        var post = posts[i];
+        var postEl = document.createElement('div');
+        postEl.className = 'post';
+
+        var avatarInitial = post.users ? post.users.username.charAt(0).toUpperCase() : '?';
+        var username = post.users ? post.users.username : 'Unknown';
+        var likesCount = post.likes && post.likes[0] ? post.likes[0].count : 0;
+        var commentsCount = post.comments && post.comments[0] ? post.comments[0].count : 0;
+        var isOwner = currentUser && post.user_id === currentUser.id;
+
+        postEl.innerHTML =
+          '<div class="post-header">' +
+            '<div class="post-avatar">' + avatarInitial + '</div>' +
+            '<div class="post-info">' +
+              '<div class="post-username">' + username + '</div>' +
+              '<div class="post-time">' + formatDate(post.created_at) + '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="post-content">' + escapeHtml(post.content) + '</div>' +
+          '<div class="post-actions">' +
+            '<button onclick="toggleLike(\'' + post.id + '\')" id="likeBtn-' + post.id + '">♥ ' + likesCount + '</button>' +
+            '<button onclick="toggleComments(\'' + post.id + '\')">💬 ' + commentsCount + '</button>' +
+            (isOwner ? '<button class="btn-danger" onclick="deletePost(\'' + post.id + '\')">Delete</button>' : '') +
+          '</div>' +
+          '<div id="comments-' + post.id + '" class="comments-section hidden">' +
+            '<div id="commentsList-' + post.id + '"></div>' +
+            '<div class="form-group" style="margin-top: 10px;">' +
+              '<textarea id="comment-' + post.id + '" placeholder="Write a comment..." style="min-height: 50px;"></textarea>' +
+              '<button class="btn btn-small" onclick="addComment(\'' + post.id + '\')" style="margin-top: 5px;">Comment</button>' +
+            '</div>' +
+          '</div>';
+
+        container.appendChild(postEl);
+      }
+    }
+
+    // Like functions
+    function toggleLike(postId) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', API_URL + '/posts/' + postId + '/like', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          document.getElementById('likeBtn-' + postId).className = 'liked';
+          if (currentView === 'feed') {
+            loadFeed();
+          } else {
+            loadProfile();
+          }
+        } else if (xhr.status === 400) {
+          // Already liked, unlike
+          unlikePost(postId);
+        }
+      };
+      xhr.send(JSON.stringify({ user_id: currentUser.id }));
+    }
+
+    function unlikePost(postId) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('DELETE', API_URL + '/posts/' + postId + '/like', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          document.getElementById('likeBtn-' + postId).className = '';
+          if (currentView === 'feed') {
+            loadFeed();
+          } else {
+            loadProfile();
+          }
+        }
+      };
+      xhr.send(JSON.stringify({ user_id: currentUser.id }));
+    }
+
+    // Comment functions
+    function toggleComments(postId) {
+      var commentsSection = document.getElementById('comments-' + postId);
+      commentsSection.className = commentsSection.className === 'hidden' ? 'comments-section' : 'hidden';
+      if (commentsSection.className !== 'hidden') {
+        loadComments(postId);
+      }
+    }
+
+    function loadComments(postId) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', API_URL + '/posts/' + postId + '/comments', true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var comments = JSON.parse(xhr.responseText);
+          renderComments(comments, postId);
+        }
+      };
+      xhr.send();
+    }
+
+    function renderComments(comments, postId) {
+      var container = document.getElementById('commentsList-' + postId);
+      container.innerHTML = '';
+
+      if (!comments || comments.length === 0) {
+        container.innerHTML = '<div style="color: #999; font-size: 12px;">No comments yet</div>';
+        return;
+      }
+
+      for (var i = 0; i < comments.length; i++) {
+        var comment = comments[i];
+        var commentEl = document.createElement('div');
+        commentEl.className = 'comment';
+
+        var avatarInitial = comment.users ? comment.users.username.charAt(0).toUpperCase() : '?';
+        var username = comment.users ? comment.users.username : 'Unknown';
+
+        commentEl.innerHTML =
+          '<div class="comment-header">' +
+            '<div class="comment-avatar">' + avatarInitial + '</div>' +
+            '<div class="comment-username">' + username + '</div>' +
+          '</div>' +
+          '<div class="comment-content">' + escapeHtml(comment.content) + '</div>';
+
+        container.appendChild(commentEl);
+      }
+    }
+
+    function addComment(postId) {
+      var content = document.getElementById('comment-' + postId).value;
+      if (!content.trim()) {
+        alert('Please enter a comment');
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', API_URL + '/posts/' + postId + '/comments', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          document.getElementById('comment-' + postId).value = '';
+          loadComments(postId);
+          if (currentView === 'feed') {
+            loadFeed();
+          } else {
+            loadProfile();
+          }
+        }
+      };
+      xhr.send(JSON.stringify({ user_id: currentUser.id, content: content }));
+    }
+
+    // Profile functions
+    function loadProfile() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', API_URL + '/users/' + currentUser.id, true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var user = JSON.parse(xhr.responseText);
+          renderProfile(user);
+          loadUserPosts();
+        }
+      };
+      xhr.send();
+    }
+
+    function renderProfile(user) {
+      var container = document.getElementById('profileContent');
+      var avatarInitial = user.username.charAt(0).toUpperCase();
+
+      container.innerHTML =
+        '<div class="user-profile">' +
+          '<div class="profile-header">' +
+            '<div class="profile-avatar">' + avatarInitial + '</div>' +
+            '<div class="profile-info">' +
+              '<h2>' + escapeHtml(user.username) + '</h2>' +
+              '<p>' + (user.bio ? escapeHtml(user.bio) : 'No bio yet') + '</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    function loadUserPosts() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', API_URL + '/users/' + currentUser.id + '/posts', true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var posts = JSON.parse(xhr.responseText);
+          renderPosts(posts, 'profilePosts');
+        }
+      };
+      xhr.send();
+    }
+
+    // Utility functions
+    function formatDate(dateString) {
+      var date = new Date(dateString);
+      var now = new Date();
+      var diff = now - date;
+      var minutes = Math.floor(diff / 60000);
+      var hours = Math.floor(diff / 3600000);
+      var days = Math.floor(diff / 86400000);
+
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return minutes + 'm ago';
+      if (hours < 24) return hours + 'h ago';
+      if (days < 7) return days + 'd ago';
+      return date.toLocaleDateString();
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
