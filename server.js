@@ -21,33 +21,24 @@ const supabase = createClient(
 // Auth endpoints
 app.post('/api/auth/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, password } = req.body;
 
     // Check if user exists
     const { data: existingUser } = await supabase
       .from('users')
       .select('id')
-      .or(`username.eq.${username},email.eq.${email}`)
+      .eq('username', username)
       .single();
 
     if (existingUser) {
-      return res.status(400).json({ error: 'Username or email already exists' });
+      return res.status(400).json({ error: 'Username already exists' });
     }
-
-    // Create user with Supabase Auth
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (authError) throw authError;
 
     // Create user profile
     const { data: userData, error: userError } = await supabase
       .from('users')
       .insert({
         username,
-        email,
         password_hash: password, // In production, use bcrypt
       })
       .select()
@@ -55,7 +46,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     if (userError) throw userError;
 
-    res.json({ user: userData, session: authData.session });
+    res.json({ user: userData });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -63,23 +54,25 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) throw error;
+    const { username, password } = req.body;
 
     // Get user profile
     const { data: userData } = await supabase
       .from('users')
       .select('*')
-      .eq('email', email)
+      .eq('username', username)
       .single();
 
-    res.json({ user: userData, session: data.session });
+    if (!userData) {
+      return res.status(400).json({ error: 'Invalid username or password' });
+    }
+
+    // Simple password check (in production, use bcrypt)
+    if (userData.password_hash !== password) {
+      return res.status(400).json({ error: 'Invalid username or password' });
+    }
+
+    res.json({ user: userData });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
