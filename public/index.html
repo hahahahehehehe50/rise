@@ -14,9 +14,10 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #f5f5f5;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: #333;
       line-height: 1.6;
+      min-height: 100vh;
     }
 
     .container {
@@ -26,50 +27,55 @@
     }
 
     .header {
-      background: #1a1a1a;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
       color: white;
       padding: 20px;
       text-align: center;
       margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
 
     .header h1 {
       font-size: 28px;
       font-weight: bold;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
 
     .nav {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       padding: 10px;
       margin-bottom: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
     .nav button {
       padding: 10px 20px;
       margin: 5px;
       border: none;
-      background: #1a1a1a;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      border-radius: 5px;
+      border-radius: 25px;
       cursor: pointer;
       font-size: 14px;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
     }
 
     .nav button:hover {
-      background: #333;
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      transform: translateY(-2px);
     }
 
     .nav button.active {
-      background: #4CAF50;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 2px 8px rgba(245, 87, 108, 0.4);
     }
 
     .auth-container {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
     }
 
     .auth-container h2 {
@@ -104,16 +110,18 @@
     .btn {
       width: 100%;
       padding: 12px;
-      background: #4CAF50;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 25px;
       font-size: 16px;
       cursor: pointer;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
 
     .btn:hover {
-      background: #45a049;
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      transform: translateY(-2px);
     }
 
     .btn-secondary {
@@ -139,11 +147,11 @@
     }
 
     .post {
-      background: white;
+      background: rgba(255, 255, 255, 0.95);
       padding: 15px;
       margin-bottom: 15px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
     .post-header {
@@ -391,9 +399,19 @@
     <div id="appSection" class="hidden">
       <div class="nav">
         <button id="feedBtn" class="active" onclick="showFeed()">Feed</button>
+        <button id="trendingBtn" onclick="showTrending()">Trending</button>
         <button id="profileBtn" onclick="showProfile()">Profile</button>
         <button id="logoutBtn" onclick="logout()">Logout</button>
       </div>
+
+      <div class="post" style="margin-bottom: 20px;">
+        <div class="form-group">
+          <input type="text" id="searchInput" placeholder="Search users..." onkeyup="handleSearch(event)">
+        </div>
+        <button class="btn" onclick="searchUsers()">Search</button>
+      </div>
+
+      <div id="searchResults" class="hidden"></div>
 
       <!-- Create Post -->
       <div id="createPost" class="post">
@@ -513,20 +531,36 @@
     function showFeed() {
       currentView = 'feed';
       document.getElementById('feedBtn').className = 'active';
+      document.getElementById('trendingBtn').className = '';
       document.getElementById('profileBtn').className = '';
       document.getElementById('feedSection').className = '';
       document.getElementById('profileSection').className = 'hidden';
       document.getElementById('createPost').className = 'post';
+      document.getElementById('searchResults').className = 'hidden';
       loadFeed();
+    }
+
+    function showTrending() {
+      currentView = 'trending';
+      document.getElementById('feedBtn').className = '';
+      document.getElementById('trendingBtn').className = 'active';
+      document.getElementById('profileBtn').className = '';
+      document.getElementById('feedSection').className = '';
+      document.getElementById('profileSection').className = 'hidden';
+      document.getElementById('createPost').className = 'post';
+      document.getElementById('searchResults').className = 'hidden';
+      loadTrending();
     }
 
     function showProfile() {
       currentView = 'profile';
       document.getElementById('feedBtn').className = '';
+      document.getElementById('trendingBtn').className = '';
       document.getElementById('profileBtn').className = 'active';
       document.getElementById('feedSection').className = 'hidden';
       document.getElementById('profileSection').className = '';
       document.getElementById('createPost').className = 'hidden';
+      document.getElementById('searchResults').className = 'hidden';
       loadProfile();
     }
 
@@ -534,6 +568,18 @@
     function loadFeed() {
       var xhr = new XMLHttpRequest();
       xhr.open('GET', API_URL + '/posts', true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var posts = JSON.parse(xhr.responseText);
+          renderPosts(posts, 'feedPosts');
+        }
+      };
+      xhr.send();
+    }
+
+    function loadTrending() {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', API_URL + '/posts/trending', true);
       xhr.onload = function() {
         if (xhr.status === 200) {
           var posts = JSON.parse(xhr.responseText);
@@ -804,6 +850,69 @@
       var div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+
+    function handleSearch(event) {
+      if (event.keyCode === 13) {
+        searchUsers();
+      }
+    }
+
+    function searchUsers() {
+      var query = document.getElementById('searchInput').value;
+      if (!query.trim()) {
+        alert('Please enter a search term');
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', API_URL + '/users/search/' + encodeURIComponent(query), true);
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var users = JSON.parse(xhr.responseText);
+          renderSearchResults(users);
+        }
+      };
+      xhr.send();
+    }
+
+    function renderSearchResults(users) {
+      var container = document.getElementById('searchResults');
+      container.innerHTML = '';
+      container.className = '';
+
+      if (!users || users.length === 0) {
+        container.innerHTML = '<div class="post"><p style="text-align: center; color: #666;">No users found</p></div>';
+        return;
+      }
+
+      var closeBtn = document.createElement('button');
+      closeBtn.className = 'btn';
+      closeBtn.style.marginBottom = '10px';
+      closeBtn.textContent = 'Close Results';
+      closeBtn.onclick = function() {
+        container.className = 'hidden';
+      };
+      container.appendChild(closeBtn);
+
+      for (var i = 0; i < users.length; i++) {
+        var user = users[i];
+        var userEl = document.createElement('div');
+        userEl.className = 'post';
+
+        var avatarInitial = user.username.charAt(0).toUpperCase();
+
+        userEl.innerHTML =
+          '<div class="post-header">' +
+            '<div class="post-avatar">' + avatarInitial + '</div>' +
+            '<div class="post-info">' +
+              '<div class="post-username">' + escapeHtml(user.username) + '</div>' +
+              '<div class="post-time">' + (user.bio ? escapeHtml(user.bio) : 'No bio') + '</div>' +
+            '</div>' +
+          '</div>';
+
+        container.appendChild(userEl);
+      }
     }
   </script>
 </body>

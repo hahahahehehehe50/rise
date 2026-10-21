@@ -95,6 +95,22 @@ app.get('/api/users/:id', async (req, res) => {
   }
 });
 
+app.get('/api/users/search/:query', async (req, res) => {
+  try {
+    const { query } = req.params;
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .ilike('username', '%' + query + '%')
+      .limit(10);
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.get('/api/users/:id/posts', async (req, res) => {
   try {
     const { id } = req.params;
@@ -126,6 +142,34 @@ app.get('/api/posts', async (req, res) => {
 
     if (error) throw error;
     res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/posts/trending', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select(`
+        *,
+        users:users(id, username, avatar_url),
+        likes:likes(count),
+        comments:comments(count)
+      `)
+      .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Sort by like count manually
+    const sorted = data.sort((a, b) => {
+      const aLikes = a.likes && a.likes[0] ? a.likes[0].count : 0;
+      const bLikes = b.likes && b.likes[0] ? b.likes[0].count : 0;
+      return bLikes - aLikes;
+    });
+
+    res.json(sorted.slice(0, 10));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

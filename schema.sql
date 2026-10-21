@@ -130,6 +130,32 @@ CREATE POLICY "Allow users to delete their own follows"
   ON follows FOR DELETE
   USING (true);
 
+-- Insert fake users
+INSERT INTO users (username, password_hash, bio) VALUES
+  ('tech_guru', 'password123', 'Always exploring the latest in tech'),
+  ('music_lover', 'password123', 'Life is better with good music'),
+  ('foodie', 'password123', 'Eating my way around the world'),
+  ('travel_bug', 'password123', 'Adventure awaits!'),
+  ('fitness_fan', 'password123', 'No pain, no gain'),
+  ('bookworm', 'password123', 'Lost in books'),
+  ('gamer_pro', 'password123', 'Press start to continue'),
+  ('art_creator', 'password123', 'Creating beauty every day'),
+  ('nature_enthusiast', 'password123', 'The great outdoors calls'),
+  ('code_master', 'password123', 'Debugging life one line at a time');
+
+-- Insert fake posts
+INSERT INTO posts (user_id, content) VALUES
+  ((SELECT id FROM users WHERE username = 'tech_guru'), 'Just discovered an amazing new framework! The future of web development is here.'),
+  ((SELECT id FROM users WHERE username = 'music_lover'), 'That new album dropped today and it is absolutely fire! 🎵'),
+  ((SELECT id FROM users WHERE username = 'foodie'), 'Found the best pizza place in town. The cheese pull was unreal! 🍕'),
+  ((SELECT id FROM users WHERE username = 'travel_bug'), 'Booking my next adventure! Thinking Japan or Iceland. Any suggestions? ✈️'),
+  ((SELECT id FROM users WHERE username = 'fitness_fan'), 'Morning workout complete. 5km run and feeling great! 💪'),
+  ((SELECT id FROM users WHERE username = 'bookworm'), 'Just finished reading "The Midnight Library". Highly recommend! 📚'),
+  ((SELECT id FROM users WHERE username = 'gamer_pro'), 'Finally beat that boss after 50 tries! Victory tastes sweet! 🎮'),
+  ((SELECT id FROM users WHERE username = 'art_creator'), 'Spent the whole day painting. Sometimes the canvas just speaks to you. 🎨'),
+  ((SELECT id FROM users WHERE username = 'nature_enthusiast'), 'Sunrise hike was breathtaking. Nature never disappoints. 🌄'),
+  ((SELECT id FROM users WHERE username = 'code_master'), 'Fixed a bug that was haunting me for days. The satisfaction is real! 🐛');
+
 -- Indexes for better performance
 CREATE INDEX idx_posts_user_id ON posts(user_id);
 CREATE INDEX idx_posts_created_at ON posts(created_at DESC);
